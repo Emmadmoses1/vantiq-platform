@@ -35,3 +35,10 @@ bot.on('polling_error', (err) => {
 });
 
 console.log('VANTIQ bot is running...');
+
+// Dummy HTTP server so Render's port check passes (bot itself doesn't need this)
+const http = require('http');
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => res.end('VANTIQ bot is running')).listen(PORT, () => {
+  console.log(`Dummy server listening on port ${PORT}`);
+});
