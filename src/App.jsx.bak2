@@ -1,0 +1,132 @@
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import Layout from './components/layout/Layout';
+import { FullPageLoader } from './components/ui/Loader';
+
+// Pages
+import Dashboard from './pages/Dashboard';
+import Signals from './pages/Signals';
+import Markets from './pages/Markets';
+import Performance from './pages/Performance';
+import Subscription from './pages/Subscription';
+import Profile from './pages/Profile';
+import Onboarding from './pages/Onboarding';
+
+// Services
+import api from './lib/api';
+import telegram from './config/telegram';
+
+function App() {
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [initError, setInitError] = useState(null);
+
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  const initializeApp = async () => {
+    try {
+      const telegramInit = telegram.init();
+
+      if (!telegramInit && import.meta.env.PROD) {
+        throw new Error('Must be opened in Telegram');
+      }
+
+      if (telegramInit) {
+        const result = await api.initialize();
+
+        setAuthenticated(result.success);
+        setIsNewUser(result.isNewUser);
+      } else {
+        // Browser development mode
+        setAuthenticated(true);
+        setIsNewUser(false);
+      }
+    } catch (error) {
+      console.error('App initialization error:', error);
+      console.error('APP INIT ERROR DETAILS:', error?.message, error);
+      setInitError(error?.message || String(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <FullPageLoader text="Initializing VANTIQ..." />;
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-dark-300 flex items-center justify-center p-4">
+        <div className="max-w-xl w-full text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Authentication Required
+          </h1>
+
+          <p className="text-gray-400 mb-6">
+            Please open this app through Telegram
+          </p>
+
+          {initError && (
+            <div className="text-left bg-red-900/30 border border-red-500/30 rounded-xl p-4">
+              <p className="text-red-400 font-semibold mb-2">
+                Initialization Error
+              </p>
+
+              <pre className="text-red-300 text-sm whitespace-pre-wrap break-words">
+                {initError}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              isNewUser
+                ? <Navigate to="/onboarding" />
+                : <Navigate to="/dashboard" />
+            }
+          />
+
+          <Route path="/onboarding" element={<Onboarding />} />
+
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/signals" element={<Signals />} />
+            <Route path="/markets" element={<Markets />} />
+            <Route path="/performance" element={<Performance />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </Routes>
+
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#1a1f35',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            },
+          }}
+        />
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default App;

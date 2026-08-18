@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "default": "vantiq-platform",
+    "production": "vantiq-prod",
+    "staging": "vantiq-staging"
+  },
+  "targets": {
+    "vantiq-platform": {
+      "hosting": {
+        "main": [
+          "vantiq-platform"
+        ]
+      }
+    }
+  }
+}
