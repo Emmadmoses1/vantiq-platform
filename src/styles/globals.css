@@ -1,124 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 :root {
-  --color-bg: #050810;
-  --color-surface: #0a0e1a;
-  --color-surface-2: #0f1425;
-  --color-border: rgba(255,255,255,0.06);
-  --color-border-bright: rgba(255,255,255,0.12);
-  --neon-blue: #3b82f6;
-  --neon-cyan: #06b6d4;
-  --neon-green: #10b981;
-  --neon-red: #ef4444;
-  --neon-amber: #f59e0b;
-  --glow-blue: 0 0 20px rgba(59,130,246,0.4), 0 0 60px rgba(59,130,246,0.15);
-  --glow-cyan: 0 0 20px rgba(6,182,212,0.4), 0 0 60px rgba(6,182,212,0.15);
-  --glow-green: 0 0 20px rgba(16,185,129,0.4), 0 0 60px rgba(16,185,129,0.15);
+  --tg-viewport-height: 100vh;
+  --tg-viewport-stable-height: 100vh;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { -webkit-tap-highlight-color: transparent; }
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
 
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--color-bg);
-  color: #fff;
-  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  background: #05080f;
+  color: white;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+}
+
+#root {
   min-height: 100vh;
 }
-
-#root { min-height: 100vh; }
-
-/* Animated noise grain overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.4;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.4); border-radius: 4px; }
-
-/* Selection */
-::selection { background: rgba(59,130,246,0.3); color: #fff; }
-
-/* Safe area */
-.safe-area-inset-bottom { padding-bottom: env(safe-area-inset-bottom); }
-.safe-area-inset-top { padding-top: env(safe-area-inset-top); }
-
-/* Mono font utility */
-.font-mono { font-family: 'JetBrains Mono', monospace; }
-
-/* Animated gradient border */
-@keyframes borderRotate {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.gradient-border {
-  position: relative;
-  background: var(--color-surface);
-  border-radius: 16px;
-}
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 17px;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
-  background-size: 300% 300%;
-  animation: borderRotate 4s ease infinite;
-  z-index: -1;
-  opacity: 0.6;
-}
-
-/* Pulse dot */
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.5); }
-}
-.pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
-
-/* Ticker shimmer skeleton */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 8px;
-}
-
-/* Glow text */
-.glow-text-blue { text-shadow: 0 0 20px rgba(59,130,246,0.8); }
-.glow-text-cyan { text-shadow: 0 0 20px rgba(6,182,212,0.8); }
-.glow-text-green { text-shadow: 0 0 20px rgba(16,185,129,0.8); }
-
-/* Number counter style */
-.stat-number {
-  font-family: 'JetBrains Mono', monospace;
-  font-feature-settings: 'tnum';
-  letter-spacing: -0.02em;
-}
-
-/* Ticker tape */
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.ticker-inner { animation: ticker 25s linear infinite; }
-.ticker-inner:hover { animation-play-state: paused; }
