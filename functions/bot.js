@@ -14,29 +14,11 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-bot.onText(/\/help/, (msg) => {
-  bot.sendMessage(msg.chat.id,
-    'VANTIQ Commands:\n/start – Open the trading signals app\n/help – Show this message\n/support – Contact support'
-  );
-});
-
-bot.onText(/\/support/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'Need help? Reach our support team at support@vantiq.app');
-});
-
-bot.on('message', (msg) => {
-  if (msg.text && !msg.text.startsWith('/')) {
-    bot.sendMessage(msg.chat.id, 'Use /start to launch VANTIQ, or /help for available commands.');
-  }
-});
-
-bot.on('polling_error', (err) => {
-  console.error('Polling error:', err.message);
-});
+bot.on('polling_error', (err) => console.error('Polling error:', err.message));
 
 console.log('VANTIQ bot is running...');
 
-// Dummy HTTP server so Render's port check passes (bot itself doesn't need this)
+// Dummy HTTP server so Render's port check passes
 const http = require('http');
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => res.end('VANTIQ bot is running')).listen(PORT, () => {
