@@ -25,13 +25,14 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [showNotifModal, setShowNotifModal] = useState(false);
+  const touchStartRef = React.useRef(null);
   const [notifPrefs, setNotifPrefs] = useState({ signals: true, tpHit: true, slHit: true, announcements: true, marketAlerts: false });
 
   useEffect(() => { load(); }, []);
 
   const load = async () => {
     try {
-      const [u, sub] = await Promise.all([api.getProfile().catch(() => null), api.getUserSubscription().catch(() => null)]);
+      const [u, sub] = await Promise.all([api.getProfile().catch((e) => { telegram.showAlert('PROFILE ERROR: ' + e.message); return null; }), api.getUserSubscription().catch(() => null)]);
       setUser(u); setSubscription(sub);
       if (u?.notification_preferences) setNotifPrefs(u.notification_preferences);
     } finally { setLoading(false); }
@@ -65,14 +66,27 @@ const Profile = () => {
     {
       title: 'Settings', items: [
         { icon: Bell, label: 'Notifications', value: 'Configure alerts', onClick: () => setShowNotifModal(true) },
-        { icon: Shield, label: 'Privacy', value: 'Data & security', onClick: () => {} },
+        { icon: Shield, label: 'Privacy', value: 'Data & security', onClick: () => navigate('/privacy') },
         { icon: HelpCircle, label: 'Help Center', value: 'Get support', onClick: () => telegram.openLink('https://vantiq.io/help') },
       ]
     },
   ];
 
   return (
-    <motion.div variants={stagger} initial="initial" animate="animate" className="p-4 pb-6 space-y-5">
+    <motion.div
+      variants={stagger} initial="initial" animate="animate" className="p-4 pb-6 space-y-5"
+      onTouchStart={(e) => {
+        if (e.touches.length === 3) touchStartRef.current = e.touches[0].clientY;
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartRef.current !== null) {
+          const endY = e.changedTouches[0].clientY;
+          const deltaY = touchStartRef.current - endY;
+          if (deltaY > 60) navigate('/admin'); // swiped up at least 60px
+          touchStartRef.current = null;
+        }
+      }}
+    >
       {/* Avatar card */}
       <motion.div variants={fadeUp} className="rounded-2xl p-5 border border-white/[0.06] bg-gradient-to-br from-blue-500/[0.07] to-cyan-500/[0.04] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-5" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', transform: 'translate(30%,-30%)' }} />

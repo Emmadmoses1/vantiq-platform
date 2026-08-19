@@ -32,10 +32,8 @@ const TelegramGuard = ({ children }) => {
       setStatus('registering');
       try {
         const result = await api.initialize();
-        if (result.isNewUser) {
-          setWelcome({ firstName: result.user?.first_name || 'there' });
-          setTimeout(() => setWelcome(null), 2200);
-        }
+        setWelcome({ firstName: result.user?.first_name || 'there', isNew: result.isNewUser });
+        setTimeout(() => setWelcome(null), 2200);
         setStatus('allowed');
       } catch (e) {
         console.error('Registration failed:', e);

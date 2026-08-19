@@ -10,7 +10,9 @@ import Notifications from './pages/Notifications';
 import Subscription from './pages/Subscription';
 import Wallet from './pages/Wallet';
 import Onboarding from './pages/Onboarding';
+import Privacy from './pages/Privacy';
 import TelegramGuard from './components/TelegramGuard';
+import AdminGuard from './admin/AdminGuard';
 
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
@@ -29,9 +31,11 @@ export default function App() {
         <Route
           path="/admin/*"
           element={
-            <Suspense fallback={<AdminLoader />}>
-              <AdminApp />
-            </Suspense>
+            <AdminGuard>
+              <Suspense fallback={<AdminLoader />}>
+                <AdminApp />
+              </Suspense>
+            </AdminGuard>
           }
         />
 
@@ -53,6 +57,7 @@ export default function App() {
                   <Route path="/notifications"  element={<Notifications />} />
                   <Route path="/subscription"   element={<Subscription />} />
                   <Route path="/wallet"         element={<Wallet />} />
+                  <Route path="/privacy"       element={<Privacy />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

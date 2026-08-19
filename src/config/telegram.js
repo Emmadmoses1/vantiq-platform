@@ -42,6 +42,21 @@ const telegram = {
     try { tg()?.close(); } catch (e) {}
   },
 
+  showBackButton: (onClick) => {
+    try {
+      const btn = tg()?.BackButton;
+      if (!btn) return;
+      btn.onClick(onClick);
+      btn.show();
+    } catch (e) {}
+  },
+
+  hideBackButton: () => {
+    try {
+      tg()?.BackButton?.hide();
+    } catch (e) {}
+  },
+
   openLink: (url) => {
     try {
       if (tg()?.openLink) { tg().openLink(url); return; }

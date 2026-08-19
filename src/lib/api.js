@@ -13,41 +13,26 @@ class API {
         throw new Error('No Telegram user found');
       }
 
-      // Set RLS context
-      await setUserContext(telegramUser.id);
-
-      // Get or create user
-      const { data: existingUser } = await supabase
+      const wasNew = await supabase
         .from('users')
-        .select('*')
+        .select('id')
         .eq('telegram_id', telegramUser.id)
+        .maybeSingle();
+
+      const { data: user, error } = await supabase
+        .rpc('get_or_create_telegram_user', {
+          p_telegram_id: telegramUser.id,
+          p_username: telegramUser.username || null,
+          p_first_name: telegramUser.first_name || null,
+          p_last_name: telegramUser.last_name || null,
+        })
         .single();
 
-      if (existingUser) {
-        this.user = existingUser;
-        // Update last login
-        await supabase
-          .from('users')
-          .update({ last_login_at: new Date().toISOString() })
-          .eq('id', existingUser.id);
-      } else {
-        // Create new user
-        const { data: newUser, error } = await supabase
-          .from('users')
-          .insert({
-            telegram_id: telegramUser.id,
-            username: telegramUser.username,
-            first_name: telegramUser.first_name,
-            last_name: telegramUser.last_name,
-          })
-          .select()
-          .single();
+      if (error) throw error;
 
-        if (error) throw error;
-        this.user = newUser;
-      }
+      this.user = user;
 
-      return { success: true, user: this.user, isNewUser: !existingUser };
+      return { success: true, user: this.user, isNewUser: !wasNew.data };
     } catch (error) {
       console.error('API initialization error:', error);
       throw error;
@@ -57,24 +42,21 @@ class API {
   // User Methods
   async getProfile() {
     const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', this.user.id)
+      .rpc('get_telegram_user', { p_telegram_id: this.user.telegram_id })
       .single();
 
     if (error) throw error;
+    this.user = data;
     return data;
   }
 
   async updateProfile(updates) {
     const { data, error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', this.user.id)
-      .select()
+      .rpc('update_telegram_user', { p_telegram_id: this.user.telegram_id, p_updates: updates })
       .single();
 
     if (error) throw error;
+    this.user = data;
     return data;
   }
 
@@ -251,3 +233,29 @@ class API {
 }
 
 export default new API();
+  async getSupportedCrypto() {
+    return {
+      cryptocurrencies: [
+        { key: 'usdt_bep20', name: 'Tether', symbol: 'USDT', network: 'BSC', networkName: 'BEP-20' },
+        { key: 'usdt_erc20', name: 'Tether', symbol: 'USDT', network: 'ETH', networkName: 'ERC-20' },
+        { key: 'usdt_trc20', name: 'Tether', symbol: 'USDT', network: 'TRX', networkName: 'TRC-20' },
+        { key: 'bnb', name: 'BNB', symbol: 'BNB', network: 'BSC', networkName: 'BEP-20' },
+        { key: 'eth', name: 'Ethereum', symbol: 'ETH', network: 'ETH', networkName: 'ERC-20' },
+        { key: 'btc', name: 'Bitcoin', symbol: 'BTC', network: 'BTC', networkName: 'Bitcoin' },
+        { key: 'ltc', name: 'Litecoin', symbol: 'LTC', network: 'LTC', networkName: 'Litecoin' },
+        { key: 'ton', name: 'Toncoin', symbol: 'TON', network: 'TON', networkName: 'TON' },
+      ]
+    };
+  }
+
+  async getPaymentStatus(orderId) {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('order_id', orderId)
+      .eq('user_id', this.user.id)
+      .single();
+
+    if (error) throw error;
+    return { payment: data };
+  }

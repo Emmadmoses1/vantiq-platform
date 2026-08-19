@@ -29,7 +29,7 @@ const AdminLogin = ({ onLogin }) => {
       localStorage.setItem('admin_token', response.token);
       onLogin();
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      setError(err.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
