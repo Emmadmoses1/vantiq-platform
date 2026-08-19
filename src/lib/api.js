@@ -230,7 +230,6 @@ class API {
 
     if (error) throw error;
   }
-}
 
   async getSupportedCrypto() {
     return {
@@ -246,9 +245,6 @@ class API {
       ]
     };
   }
-}
-
-export default new API();
 
   async getPaymentStatus(orderId) {
     const { data, error } = await supabase
@@ -261,3 +257,6 @@ export default new API();
     if (error) throw error;
     return { payment: data };
   }
+}
+
+export default new API();
